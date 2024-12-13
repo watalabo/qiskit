@@ -188,7 +188,7 @@ class Exporter:
             self.dump(circuit, stream)
             return stream.getvalue()
 
-    def dump(self, circuit, stream):
+    def dump(self, circuit, stream, source_map_stream=None):
         """Convert the circuit to OpenQASM 3, dumping the result to a file or text stream."""
         builder = QASM3Builder(
             circuit,
@@ -198,7 +198,7 @@ class Exporter:
             allow_aliasing=self.allow_aliasing,
             experimental=self.experimental,
         )
-        BasicPrinter(stream, indent=self.indent, experimental=self.experimental).visit(
+        BasicPrinter(stream, source_map_stream, circuit._source_ranges, indent=self.indent, experimental=self.experimental).visit(
             builder.build_program()
         )
 

@@ -18,10 +18,12 @@ from __future__ import annotations
 
 import collections.abc
 import copy as _copy
+import inspect
 import itertools
 import multiprocessing as mp
 import typing
 from collections import OrderedDict, defaultdict, namedtuple
+from dataclasses import dataclass
 from typing import (
     Union,
     Optional,
@@ -109,6 +111,14 @@ ClbitSpecifier = Union[
 # Generic type which is either :obj:`~Qubit` or :obj:`~Clbit`, used to specify types of functions
 # which operate on either type of bit, but not both at the same time.
 BitType = TypeVar("BitType", Qubit, Clbit)
+
+
+@dataclass
+class SourceRange:
+    """Represents a range of source code in a file."""
+    line: int
+    column_start: int
+    column_end: int
 
 
 # NOTE:
@@ -1154,6 +1164,8 @@ class QuantumCircuit:
 
         Qiskit will not examine the content of this mapping, but it will pass it through the
         transpiler and reattach it to the output, so you can track your own metadata."""
+
+        self._source_ranges = []
 
     @property
     @deprecate_func(since="1.3.0", removal_timeline="in Qiskit 2.0.0", is_property=True)
@@ -2445,6 +2457,13 @@ class QuantumCircuit:
             clbit_representation, self.clbits, self._clbit_indices, Clbit
         )
 
+    def _get_caller_range(caller_frame: inspect.FrameInfo) -> SourceRange:
+        # Decrement line number by 1 because `caller_frame.lineno` is 1-indexed
+        line = caller_frame.lineno - 1
+        column_start = caller_frame.positions.col_offset
+        column_end = caller_frame.positions.end_col_offset
+        return SourceRange(line, column_start, column_end)
+
     def _append_standard_gate(
         self,
         op: StandardGate,
@@ -2462,12 +2481,17 @@ class QuantumCircuit:
         for param in params:
             Gate.validate_parameter(op, param)
 
+        caller_frame = inspect.stack()[2]
+        source_range = QuantumCircuit._get_caller_range(caller_frame)
+
         instructions = InstructionSet(resource_requester=circuit_scope.resolve_classical_resource)
         for qarg, _ in Gate.broadcast_arguments(op, expanded_qargs, []):
             self._check_dups(qarg)
             instruction = CircuitInstruction.from_standard(op, qarg, params, label=label)
             circuit_scope.append(instruction, _standard_gate=True)
             instructions._add_ref(circuit_scope.instructions, len(circuit_scope.instructions) - 1)
+            self._source_ranges.append(source_range)
+
         return instructions
 
     def append(
@@ -2568,11 +2592,15 @@ class QuantumCircuit:
             else Instruction.broadcast_arguments(operation, expanded_qargs, expanded_cargs)
         )
         base_instruction = CircuitInstruction(operation, (), ())
+
+        caller_frame = inspect.stack()[2]
+        source_range = QuantumCircuit._get_caller_range(caller_frame)
         for qarg, carg in broadcast_iter:
             self._check_dups(qarg)
             instruction = base_instruction.replace(qubits=qarg, clbits=carg)
             circuit_scope.append(instruction)
             instructions._add_ref(circuit_scope.instructions, len(circuit_scope.instructions) - 1)
+            self._source_ranges.append(source_range)
         return instructions
 
     # Preferred new style.

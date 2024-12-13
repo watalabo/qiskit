@@ -288,7 +288,7 @@ def dumps(circuit, **kwargs) -> str:
     return Exporter(**kwargs).dumps(circuit)
 
 
-def dump(circuit, stream, **kwargs) -> None:
+def dump(circuit, stream, source_map_stream=None, **kwargs) -> None:
     """Serialize a :class:`~qiskit.circuit.QuantumCircuit` object as an OpenQASM 3 stream to
     file-like object.
 
@@ -298,7 +298,7 @@ def dump(circuit, stream, **kwargs) -> None:
         **kwargs: Arguments for the :obj:`.Exporter` constructor.
 
     """
-    Exporter(**kwargs).dump(circuit, stream)
+    Exporter(**kwargs).dump(circuit, stream, source_map_stream)
 
 
 @_optionals.HAS_QASM3_IMPORT.require_in_call("loading from OpenQASM 3")
