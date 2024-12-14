@@ -118,8 +118,6 @@ BitType = TypeVar("BitType", Qubit, Clbit)
 class SourceRange:
     """Represents a range of source code in a file."""
     line: int
-    column_start: int
-    column_end: int
 
 
 # NOTE:
@@ -2480,6 +2478,7 @@ class QuantumCircuit:
         for param in params:
             Gate.validate_parameter(op, param)
 
+        # Current frame -> frame of gate definition function (such as .h() or .cx()) -> frame of the caller of the gate
         caller_frame = inspect.currentframe().f_back.f_back
         source_range = QuantumCircuit._get_caller_range(caller_frame)
 
