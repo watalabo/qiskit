@@ -21,6 +21,7 @@ import copy as _copy
 import inspect
 import itertools
 import multiprocessing as mp
+from types import FrameType
 import typing
 from collections import OrderedDict, defaultdict, namedtuple
 from dataclasses import dataclass
@@ -2457,12 +2458,10 @@ class QuantumCircuit:
             clbit_representation, self.clbits, self._clbit_indices, Clbit
         )
 
-    def _get_caller_range(caller_frame: inspect.FrameInfo) -> SourceRange:
+    def _get_caller_range(caller_frame: FrameType) -> SourceRange:
         # Decrement line number by 1 because `caller_frame.lineno` is 1-indexed
-        line = caller_frame.lineno - 1
-        column_start = caller_frame.positions.col_offset
-        column_end = caller_frame.positions.end_col_offset
-        return SourceRange(line, column_start, column_end)
+        line = caller_frame.f_lineno - 1
+        return SourceRange(line)
 
     def _append_standard_gate(
         self,
@@ -2481,7 +2480,7 @@ class QuantumCircuit:
         for param in params:
             Gate.validate_parameter(op, param)
 
-        caller_frame = inspect.stack()[2]
+        caller_frame = inspect.currentframe().f_back.f_back
         source_range = QuantumCircuit._get_caller_range(caller_frame)
 
         instructions = InstructionSet(resource_requester=circuit_scope.resolve_classical_resource)
@@ -2593,7 +2592,7 @@ class QuantumCircuit:
         )
         base_instruction = CircuitInstruction(operation, (), ())
 
-        caller_frame = inspect.stack()[2]
+        caller_frame = inspect.currentframe().f_back.f_back
         source_range = QuantumCircuit._get_caller_range(caller_frame)
         for qarg, carg in broadcast_iter:
             self._check_dups(qarg)
