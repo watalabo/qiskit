@@ -1167,7 +1167,6 @@ class QuantumCircuit:
 
         self._should_register_source_range = True
         self._current_instruction_source_range = None
-        self._source_ranges = []
 
     @property
     @deprecate_func(since="1.3.0", removal_timeline="in Qiskit 2.0.0", is_property=True)
@@ -2502,9 +2501,9 @@ class QuantumCircuit:
         for qarg, _ in Gate.broadcast_arguments(op, expanded_qargs, []):
             self._check_dups(qarg)
             instruction = CircuitInstruction.from_standard(op, qarg, params, label=label)
+            instruction.source_range = self._current_instruction_source_range if self._should_register_source_range else None
             circuit_scope.append(instruction, _standard_gate=True)
             instructions._add_ref(circuit_scope.instructions, len(circuit_scope.instructions) - 1)
-            self._source_ranges.append(self._current_instruction_source_range if self._should_register_source_range else None)
 
         return instructions
 
@@ -2685,8 +2684,8 @@ class QuantumCircuit:
         # This shouldn't happen in practice but 2 tests were doing this and it's not
         # explicitly prohibted by the API.
         try:
+            instruction.source_range = self._current_instruction_source_range if self._should_register_source_range else None
             self._data.append(instruction)
-            self._source_ranges.append(self._current_instruction_source_range if self._should_register_source_range else None)
         except RuntimeError:
             params = [
                 (idx, param.parameters)

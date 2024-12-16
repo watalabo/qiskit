@@ -502,6 +502,7 @@ pub struct PackedInstruction {
     pub clbits: Interned<[Clbit]>,
     pub params: Option<Box<SmallVec<[Param; 3]>>>,
     pub extra_attrs: ExtraInstructionAttributes,
+    pub source_range: Option<i64>,
 
     #[cfg(feature = "cache_pygates")]
     /// This is hidden in a `OnceLock` because it's just an on-demand cache; we don't create this

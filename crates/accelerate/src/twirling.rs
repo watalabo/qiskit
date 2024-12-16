@@ -208,6 +208,7 @@ fn twirl_gate(
             clbits: circ.cargs_interner().get_default(),
             params: None,
             extra_attrs: ExtraInstructionAttributes::new(None, None, None, None),
+            source_range: inst.source_range.clone(),
             #[cfg(feature = "cache_pygates")]
             py_op: std::sync::OnceLock::new(),
         },
@@ -220,6 +221,7 @@ fn twirl_gate(
             clbits: circ.cargs_interner().get_default(),
             params: None,
             extra_attrs: ExtraInstructionAttributes::new(None, None, None, None),
+            source_range: inst.source_range.clone(),
             #[cfg(feature = "cache_pygates")]
             py_op: std::sync::OnceLock::new(),
         },
@@ -234,6 +236,7 @@ fn twirl_gate(
             clbits: circ.cargs_interner().get_default(),
             params: None,
             extra_attrs: ExtraInstructionAttributes::new(None, None, None, None),
+            source_range: inst.source_range.clone(),
             #[cfg(feature = "cache_pygates")]
             py_op: std::sync::OnceLock::new(),
         },
@@ -246,6 +249,7 @@ fn twirl_gate(
             clbits: circ.cargs_interner().get_default(),
             params: None,
             extra_attrs: ExtraInstructionAttributes::new(None, None, None, None),
+            source_range: inst.source_range.clone(),
             #[cfg(feature = "cache_pygates")]
             py_op: std::sync::OnceLock::new(),
         },
@@ -360,6 +364,7 @@ fn generate_twirled_circuit(
                                 .collect::<SmallVec<[Param; 3]>>(),
                         )),
                         extra_attrs: inst.extra_attrs.clone(),
+                        source_range: None,
                         #[cfg(feature = "cache_pygates")]
                         py_op: std::sync::OnceLock::new(),
                     };

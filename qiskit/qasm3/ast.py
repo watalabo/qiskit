@@ -359,11 +359,12 @@ class QuantumMeasurementAssignment(Statement):
         | indexIdentifier EQUALS quantumMeasurement  # eg: bits = measure qubits;
     """
 
-    __slots__ = ("identifier", "quantumMeasurement")
+    __slots__ = ("identifier", "quantumMeasurement", "source_range")
 
-    def __init__(self, identifier: Identifier, quantumMeasurement: QuantumMeasurement):
+    def __init__(self, identifier: Identifier, quantumMeasurement: QuantumMeasurement, source_range: Optional[int] = None):
         self.identifier = identifier
         self.quantumMeasurement = quantumMeasurement
+        self.source_range = source_range
 
 
 class Designator(ASTNode):
@@ -451,7 +452,7 @@ class QuantumGateCall(QuantumInstruction):
         : quantumGateModifier* quantumGateName ( LPAREN expressionList? RPAREN )? indexIdentifierList
     """
 
-    __slots__ = ("quantumGateName", "indexIdentifierList", "parameters", "modifiers")
+    __slots__ = ("quantumGateName", "indexIdentifierList", "parameters", "modifiers", "source_range")
 
     def __init__(
         self,
@@ -459,11 +460,13 @@ class QuantumGateCall(QuantumInstruction):
         indexIdentifierList: List[Identifier],
         parameters: Sequence[Expression] = (),
         modifiers: Sequence[QuantumGateModifier] = (),
+        source_range: Optional[int] = None
     ):
         self.quantumGateName = quantumGateName
         self.indexIdentifierList = indexIdentifierList
         self.parameters = parameters
         self.modifiers = modifiers
+        self.source_range = source_range
 
 
 class QuantumBarrier(QuantumInstruction):
@@ -472,10 +475,11 @@ class QuantumBarrier(QuantumInstruction):
         : 'barrier' indexIdentifierList
     """
 
-    __slots__ = ("indexIdentifierList",)
+    __slots__ = ("indexIdentifierList", "source_range")
 
-    def __init__(self, indexIdentifierList: List[Identifier]):
+    def __init__(self, indexIdentifierList: List[Identifier], source_range: Optional[int] = None):
         self.indexIdentifierList = indexIdentifierList
+        self.source_range = source_range
 
 
 class QuantumReset(QuantumInstruction):

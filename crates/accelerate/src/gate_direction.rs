@@ -403,6 +403,7 @@ fn has_calibration_for_op_node(
                     extra_attrs: packed_inst.extra_attrs.clone(),
                     #[cfg(feature = "cache_pygates")]
                     py_op: packed_inst.py_op.clone(),
+                    source_range: None,
                 },
                 sort_key: "".into_py(py),
             },

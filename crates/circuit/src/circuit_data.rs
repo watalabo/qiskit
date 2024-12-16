@@ -304,6 +304,7 @@ impl CircuitData {
                     clbits: inst.clbits,
                     params: inst.params.clone(),
                     extra_attrs: inst.extra_attrs.clone(),
+                    source_range: inst.source_range.clone(),
                     #[cfg(feature = "cache_pygates")]
                     py_op: OnceLock::new(),
                 });
@@ -316,6 +317,7 @@ impl CircuitData {
                     clbits: inst.clbits,
                     params: inst.params.clone(),
                     extra_attrs: inst.extra_attrs.clone(),
+                    source_range: inst.source_range.clone(),
                     #[cfg(feature = "cache_pygates")]
                     py_op: OnceLock::new(),
                 });
@@ -515,6 +517,7 @@ impl CircuitData {
                 extra_attrs: inst.extra_attrs.clone(),
                 #[cfg(feature = "cache_pygates")]
                 py_op: inst.py_op.clone(),
+                source_range: inst.source_range.clone(),
             }
             .into_py(py)
         };
@@ -692,6 +695,7 @@ impl CircuitData {
                     clbits: clbits_id,
                     params: inst.params.clone(),
                     extra_attrs: inst.extra_attrs.clone(),
+                    source_range: inst.source_range.clone(),
                     #[cfg(feature = "cache_pygates")]
                     py_op: inst.py_op.clone(),
                 });
@@ -942,6 +946,7 @@ impl CircuitData {
                 clbits,
                 params,
                 extra_attrs: ExtraInstructionAttributes::default(),
+                source_range: None,
                 #[cfg(feature = "cache_pygates")]
                 py_op: OnceLock::new(),
             });
@@ -1056,6 +1061,7 @@ impl CircuitData {
                 clbits: no_clbit_index,
                 params,
                 extra_attrs: ExtraInstructionAttributes::default(),
+                source_range: None,
                 #[cfg(feature = "cache_pygates")]
                 py_op: OnceLock::new(),
             });
@@ -1119,6 +1125,7 @@ impl CircuitData {
             clbits: no_clbit_index,
             params,
             extra_attrs: ExtraInstructionAttributes::default(),
+            source_range: None,
             #[cfg(feature = "cache_pygates")]
             py_op: OnceLock::new(),
         });
@@ -1215,6 +1222,7 @@ impl CircuitData {
             clbits,
             params: (!inst.params.is_empty()).then(|| Box::new(inst.params.clone())),
             extra_attrs: inst.extra_attrs.clone(),
+            source_range: inst.source_range.clone(),
             #[cfg(feature = "cache_pygates")]
             py_op: inst.py_op.clone(),
         })

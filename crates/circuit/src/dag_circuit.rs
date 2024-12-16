@@ -1768,6 +1768,7 @@ def _format(operand):
                 clbits: clbits_id,
                 params: (!py_op.params.is_empty()).then(|| Box::new(py_op.params)),
                 extra_attrs: py_op.extra_attrs,
+                source_range: None,
                 #[cfg(feature = "cache_pygates")]
                 py_op: op.unbind().into(),
             };
@@ -1822,6 +1823,7 @@ def _format(operand):
                 clbits: clbits_id,
                 params: (!py_op.params.is_empty()).then(|| Box::new(py_op.params)),
                 extra_attrs: py_op.extra_attrs,
+                source_range: None,
                 #[cfg(feature = "cache_pygates")]
                 py_op: op.unbind().into(),
             };
@@ -5155,6 +5157,7 @@ impl DAGCircuit {
             clbits: self.cargs_interner.insert(cargs),
             params: params.map(Box::new),
             extra_attrs,
+            source_range: None,
             #[cfg(feature = "cache_pygates")]
             py_op,
         };
@@ -5597,6 +5600,7 @@ impl DAGCircuit {
                 clbits,
                 params,
                 extra_attrs: op_node.instruction.extra_attrs.clone(),
+                source_range: None,
                 #[cfg(feature = "cache_pygates")]
                 py_op: op_node.instruction.py_op.clone(),
             };
@@ -5645,6 +5649,7 @@ impl DAGCircuit {
                                 extra_attrs: packed.extra_attrs.clone(),
                                 #[cfg(feature = "cache_pygates")]
                                 py_op: packed.py_op.clone(),
+                                source_range: None,
                             },
                             sort_key: format!("{:?}", self.sort_key(id)).into_py(py),
                         },
@@ -6192,6 +6197,7 @@ impl DAGCircuit {
                 params: (!new_gate.1.is_empty())
                     .then(|| Box::new(new_gate.1.iter().map(|x| Param::Float(*x)).collect())),
                 extra_attrs: ExtraInstructionAttributes::default(),
+                source_range: None,
                 #[cfg(feature = "cache_pygates")]
                 py_op: OnceLock::new(),
             }
@@ -6289,6 +6295,7 @@ impl DAGCircuit {
                 clbits: self.cargs_interner.get_default(),
                 params: (!new_op.params.is_empty()).then(|| Box::new(new_op.params)),
                 extra_attrs: new_op.extra_attrs,
+                source_range: None,
                 #[cfg(feature = "cache_pygates")]
                 py_op,
             };
@@ -6731,6 +6738,7 @@ impl DAGCircuit {
                     clbits: new_cargs,
                     params: instr.params.clone(),
                     extra_attrs: instr.extra_attrs.clone(),
+                    source_range: None,
                     #[cfg(feature = "cache_pygates")]
                     py_op: OnceLock::new(),
                 })
@@ -6865,6 +6873,7 @@ impl DAGCircuit {
             clbits,
             params: (!py_op.params.is_empty()).then(|| Box::new(py_op.params)),
             extra_attrs: py_op.extra_attrs,
+            source_range: None,
             #[cfg(feature = "cache_pygates")]
             py_op: op.unbind().into(),
         });
@@ -6993,6 +7002,7 @@ impl DAGCircuit {
             clbits: old_packed.clbits,
             params: (!new_op.params.is_empty()).then(|| new_op.params.into()),
             extra_attrs,
+            source_range: None,
             #[cfg(feature = "cache_pygates")]
             py_op: py_op_cache.map(OnceLock::from).unwrap_or_default(),
         });

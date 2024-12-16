@@ -237,6 +237,9 @@ pub struct CircuitInstruction {
     pub extra_attrs: ExtraInstructionAttributes,
     #[cfg(feature = "cache_pygates")]
     pub py_op: OnceLock<Py<PyAny>>,
+    /// A line number of the source file this instruction is called.
+    #[pyo3(get, set)]
+    pub source_range: Option<i64>,
 }
 
 impl CircuitInstruction {
@@ -282,6 +285,7 @@ impl CircuitInstruction {
             extra_attrs: op_parts.extra_attrs,
             #[cfg(feature = "cache_pygates")]
             py_op: operation.into_py(py).into(),
+            source_range: None,
         })
     }
 
@@ -302,6 +306,7 @@ impl CircuitInstruction {
             extra_attrs: ExtraInstructionAttributes::new(label, None, None, None),
             #[cfg(feature = "cache_pygates")]
             py_op: OnceLock::new(),
+            source_range: None,
         })
     }
 
@@ -455,6 +460,7 @@ impl CircuitInstruction {
                 extra_attrs: op_parts.extra_attrs,
                 #[cfg(feature = "cache_pygates")]
                 py_op: operation.into_py(py).into(),
+                source_range: None,
             })
         } else {
             Ok(Self {
@@ -465,6 +471,7 @@ impl CircuitInstruction {
                 extra_attrs: self.extra_attrs.clone(),
                 #[cfg(feature = "cache_pygates")]
                 py_op: self.py_op.clone(),
+                source_range: None,
             })
         }
     }
@@ -482,11 +489,12 @@ impl CircuitInstruction {
         let type_name = self_.get_type().qualname()?;
         let r = self_.try_borrow()?;
         Ok(format!(
-            "{}(operation={}, qubits={}, clbits={})",
+            "{}(operation={}, qubits={}, clbits={}, line={})",
             type_name,
             r.get_operation(py)?.bind(py).repr()?,
             r.qubits.bind(py).repr()?,
-            r.clbits.bind(py).repr()?
+            r.clbits.bind(py).repr()?,
+            r.source_range.unwrap_or(-1)
         ))
     }
 

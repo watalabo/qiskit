@@ -138,6 +138,7 @@ impl DAGOpNode {
             extra_attrs: py_op.extra_attrs,
             #[cfg(feature = "cache_pygates")]
             py_op: op.unbind().into(),
+            source_range: None,
         };
 
         Py::new(
@@ -294,6 +295,7 @@ impl DAGOpNode {
             extra_attrs: self.instruction.extra_attrs.clone(),
             #[cfg(feature = "cache_pygates")]
             py_op: OnceLock::new(),
+            source_range: None,
         })
     }
 

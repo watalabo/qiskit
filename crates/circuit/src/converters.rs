@@ -13,8 +13,8 @@
 #[cfg(feature = "cache_pygates")]
 use std::sync::OnceLock;
 
-use ::pyo3::prelude::*;
 use hashbrown::HashMap;
+use pyo3::prelude::*;
 use pyo3::{
     intern,
     types::{PyDict, PyList},
@@ -125,6 +125,7 @@ pub fn dag_to_circuit(
                             .collect(),
                     )),
                     extra_attrs: instr.extra_attrs.clone(),
+                    source_range: None,
                     #[cfg(feature = "cache_pygates")]
                     py_op: OnceLock::new(),
                 })

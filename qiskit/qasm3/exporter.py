@@ -198,7 +198,8 @@ class Exporter:
             allow_aliasing=self.allow_aliasing,
             experimental=self.experimental,
         )
-        BasicPrinter(stream, source_map_stream, circuit._source_ranges, indent=self.indent, experimental=self.experimental).visit(
+        # Now QuantumCircuit doesn't have source_map_stream, so we need to build it from `instruction`s.
+        BasicPrinter(stream, source_map_stream, indent=self.indent, experimental=self.experimental).visit(
             builder.build_program()
         )
 
@@ -582,6 +583,7 @@ class QASM3Builder:
         self.includes = includeslist
         self.basis_gates = basis_gates
         self.experimental = experimental
+        self._source_ranges = []
 
     @contextlib.contextmanager
     def new_scope(self, circuit: QuantumCircuit, qubits: Iterable[Qubit], clbits: Iterable[Clbit]):
@@ -982,7 +984,7 @@ class QASM3Builder:
                     [self._lookup_bit(operand) for operand in instruction.qubits]
                 )
                 qubit = self._lookup_bit(instruction.clbits[0])
-                nodes = [ast.QuantumMeasurementAssignment(qubit, measurement)]
+                nodes = [ast.QuantumMeasurementAssignment(qubit, measurement, source_range=instruction.source_range)]
             elif isinstance(instruction.operation, Reset):
                 nodes = [
                     ast.QuantumReset(self._lookup_bit(operand)) for operand in instruction.qubits
@@ -1191,7 +1193,7 @@ class QASM3Builder:
         if not self.disable_constants:
             for parameter in parameters:
                 parameter.obj = pi_check(parameter.obj, output="qasm")
-        return ast.QuantumGateCall(ident, qubits, parameters=parameters)
+        return ast.QuantumGateCall(ident, qubits, parameters=parameters, source_range=instruction.source_range)
 
 
 def _infer_variable_declaration(

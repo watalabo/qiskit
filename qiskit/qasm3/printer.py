@@ -16,11 +16,10 @@ import collections
 from dataclasses import asdict, dataclass
 import io
 from json import dump
-from typing import Sequence
+from typing import Optional, Sequence
 
 from . import ast
 from .experimental import ExperimentalFeatures
-from qiskit.circuit.quantumcircuit import SourceRange
 
 # Precedence and associativity table for prefix, postfix and infix operators.  The rules are a
 # lookup table of two-tuples; the "binding power" of the operator to the left and to the right.
@@ -67,8 +66,8 @@ _BINDING_POWER = {
 @dataclass
 class SourceMap:
     """A class to hold the source map information for a generated OpenQASM 3 file."""
-    source_ranges: list[SourceRange]
-    generated_line_byte_offset: list[int]
+    source_ranges: list[int]
+    generated_line_byte_offset: list[Optional[int]]
 
 
 class BasicPrinter:
@@ -97,7 +96,6 @@ class BasicPrinter:
         self,
         stream: io.TextIOBase,
         source_map_stream: io.TextIOBase = None,
-        source_ranges: list[SourceRange] = [],
         *,
         indent: str,
         chain_else_if: bool = False,
@@ -136,12 +134,21 @@ class BasicPrinter:
         """
         self.stream = stream
         self.source_map_stream = source_map_stream
-        self.source_ranges = source_ranges
         self.indent = indent
         self._qasm_byte_offsets = []
         self._current_indent = 0
         self._chain_else_if = chain_else_if
         self._experimental = experimental
+        self._source_ranges = []
+
+    def _record_source_map(self, node: ast.ASTNode) -> None:
+        """Record the source map information for the given node.
+        num_bytes for a byte offset in the output QASM file.
+        source_ranges for the source range of the node in the input Python file.
+        """
+        num_bytes = self.stream.tell()
+        self._qasm_byte_offsets.append(num_bytes)
+        self._source_ranges.append(node.source_range)
 
     def visit(self, node: ast.ASTNode) -> None:
         """Visit this node of the AST, printing it out to the stream in this class instance.
@@ -201,7 +208,7 @@ class BasicPrinter:
         self.visit(node.header)
         for statement in node.statements:
             self.visit(statement)
-        source_map = SourceMap(self.source_ranges, self._qasm_byte_offsets)
+        source_map = SourceMap(self._source_ranges, self._qasm_byte_offsets)
         if self.source_map_stream:
             dump(asdict(source_map), self.source_map_stream, indent=4)
 
@@ -277,8 +284,7 @@ class BasicPrinter:
         self._visit_sequence(node.identifierList, separator=", ")
 
     def _visit_QuantumMeasurementAssignment(self, node: ast.QuantumMeasurementAssignment) -> None:
-        num_bytes = self.stream.tell()
-        self._qasm_byte_offsets.append(num_bytes)
+        self._record_source_map(node)
         self._start_line()
         self.visit(node.identifier)
         self.stream.write(" = ")
@@ -417,8 +423,7 @@ class BasicPrinter:
             self.stream.write(")")
 
     def _visit_QuantumGateCall(self, node: ast.QuantumGateCall) -> None:
-        num_bytes = self.stream.tell()
-        self._qasm_byte_offsets.append(num_bytes)
+        self._record_source_map(node)
         self._start_line()
         if node.modifiers:
             self._visit_sequence(node.modifiers, end=" @ ", separator=" @ ")
@@ -430,8 +435,7 @@ class BasicPrinter:
         self._end_statement()
 
     def _visit_QuantumBarrier(self, node: ast.QuantumBarrier) -> None:
-        num_bytes = self.stream.tell()
-        self._qasm_byte_offsets.append(num_bytes)
+        self._record_source_map(node)
         self._start_line()
         self.stream.write("barrier ")
         self._visit_sequence(node.indexIdentifierList, separator=", ")

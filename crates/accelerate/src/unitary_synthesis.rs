@@ -148,6 +148,7 @@ fn apply_synth_sequence(
             clbits: out_dag.cargs_interner.get_default(),
             params: new_params,
             extra_attrs: ExtraInstructionAttributes::default(),
+            source_range: None,
             #[cfg(feature = "cache_pygates")]
             py_op: OnceLock::new(),
         };
@@ -285,6 +286,7 @@ fn py_run_main_loop(
                 clbits: packed_instr.clbits,
                 params: (!new_node_op.params.is_empty()).then(|| Box::new(new_node_op.params)),
                 extra_attrs: new_node_op.extra_attrs,
+                source_range: None,
                 #[cfg(feature = "cache_pygates")]
                 py_op: new_node.unbind().into(),
             };
