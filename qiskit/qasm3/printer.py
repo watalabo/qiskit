@@ -373,6 +373,7 @@ class BasicPrinter:
         self.stream.write("]")
 
     def _visit_ClassicalDeclaration(self, node: ast.ClassicalDeclaration) -> None:
+        self._record_source_map(node)
         self._start_line()
         self.visit(node.type)
         self.stream.write(" ")
@@ -399,6 +400,7 @@ class BasicPrinter:
         self._end_statement()
 
     def _visit_QuantumDeclaration(self, node: ast.QuantumDeclaration) -> None:
+        self._record_source_map(node)
         self._start_line()
         self.stream.write("qubit")
         if node.designator is not None:

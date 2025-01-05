@@ -1167,6 +1167,7 @@ class QuantumCircuit:
 
         self._should_register_source_range = True
         self._current_instruction_source_range = None
+        self._circuit_declaration_source_range = QuantumCircuit._get_caller_range(inspect.currentframe().f_back)
 
     @property
     @deprecate_func(since="1.3.0", removal_timeline="in Qiskit 2.0.0", is_property=True)

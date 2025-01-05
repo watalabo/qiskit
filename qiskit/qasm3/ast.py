@@ -382,12 +382,13 @@ class Designator(ASTNode):
 class ClassicalDeclaration(Statement):
     """Declaration of a classical type, optionally initializing it to a value."""
 
-    __slots__ = ("type", "identifier", "initializer")
+    __slots__ = ("type", "identifier", "initializer", "source_range")
 
-    def __init__(self, type_: ClassicalType, identifier: Identifier, initializer=None):
+    def __init__(self, type_: ClassicalType, identifier: Identifier, initializer=None, source_range: Optional[int] = None):
         self.type = type_
         self.identifier = identifier
         self.initializer = initializer
+        self.source_range = source_range
 
 
 class AssignmentStatement(Statement):
@@ -407,11 +408,12 @@ class QuantumDeclaration(ASTNode):
          'qubit' designator? Identifier
     """
 
-    __slots__ = ("identifier", "designator")
+    __slots__ = ("identifier", "designator", "source_range")
 
-    def __init__(self, identifier: Identifier, designator=None):
+    def __init__(self, identifier: Identifier, designator=None, source_range: Optional[int] = None):
         self.identifier = identifier
         self.designator = designator
+        self.source_range = source_range
 
 
 class AliasStatement(ASTNode):

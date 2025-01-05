@@ -827,6 +827,7 @@ class QASM3Builder:
                     self.symbols.register_variable(
                         f"{self.loose_bit_prefix}{i}", clbit, allow_rename=True
                     ),
+                    source_range=circuit._circuit_declaration_source_range
                 )
                 for i, clbit in enumerate(circuit.clbits)
             )
@@ -841,6 +842,7 @@ class QASM3Builder:
                 self.symbols.register_variable(
                     f"{self.loose_bit_prefix}{i}", clbit, allow_rename=True
                 ),
+                source_range=circuit._circuit_declaration_source_range
             )
             for i, clbit in enumerate(circuit.clbits)
             if not circuit.find_bit(clbit).registers
@@ -852,7 +854,11 @@ class QASM3Builder:
                     ast.SubscriptedIdentifier(name.string, ast.IntegerLiteral(i)), bit
                 )
             self._global_classical_forward_declarations.append(
-                ast.ClassicalDeclaration(ast.BitArrayType(len(register)), name)
+                ast.ClassicalDeclaration(
+                    ast.BitArrayType(len(register)),
+                    name,
+                    source_range=circuit._circuit_declaration_source_range
+                )
             )
 
     def hoist_classical_io_var_declarations(self):
@@ -896,7 +902,8 @@ class QASM3Builder:
                 ast.QuantumDeclaration(
                     self.symbols.register_variable(
                         f"{self.loose_qubit_prefix}{i}", qubit, allow_rename=True
-                    )
+                    ),
+                    source_range=circuit._circuit_declaration_source_range
                 )
                 for i, qubit in enumerate(circuit.qubits)
             ]
@@ -907,7 +914,8 @@ class QASM3Builder:
             ast.QuantumDeclaration(
                 self.symbols.register_variable(
                     f"{self.loose_qubit_prefix}{i}", qubit, allow_rename=True
-                )
+                ),
+                source_range=circuit._circuit_declaration_source_range
             )
             for i, qubit in enumerate(circuit.qubits)
             if not circuit.find_bit(qubit).registers
@@ -920,7 +928,7 @@ class QASM3Builder:
                     ast.SubscriptedIdentifier(name.string, ast.IntegerLiteral(i)), bit
                 )
             registers.append(
-                ast.QuantumDeclaration(name, ast.Designator(ast.IntegerLiteral(len(register))))
+                ast.QuantumDeclaration(name, ast.Designator(ast.IntegerLiteral(len(register))), source_range=circuit._circuit_declaration_source_range)
             )
         return loose_qubits + registers
 
@@ -957,6 +965,7 @@ class QASM3Builder:
             ast.ClassicalDeclaration(
                 _build_ast_type(var.type),
                 self.symbols.register_variable(var.name, var, allow_rename=True),
+                source_range=self.scope.circuit._circuit_declaration_source_range
             )
             for var in self.scope.circuit.iter_declared_vars()
         ]
@@ -1042,7 +1051,12 @@ class QASM3Builder:
             "switch_dummy", None, allow_rename=True, force_global=True
         )
         self._global_classical_forward_declarations.append(
-            ast.ClassicalDeclaration(ast.IntType(), target, None)
+            ast.ClassicalDeclaration(
+                ast.IntType(),
+                target,
+                None,
+                source_range=self.scope.circuit._circuit_declaration_source_range
+            )
         )
 
         if ExperimentalFeatures.SWITCH_CASE_V1 in self.experimental:
