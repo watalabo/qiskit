@@ -460,7 +460,7 @@ impl CircuitInstruction {
                 extra_attrs: op_parts.extra_attrs,
                 #[cfg(feature = "cache_pygates")]
                 py_op: operation.into_py(py).into(),
-                source_range: None,
+                source_range: self.source_range,
             })
         } else {
             Ok(Self {
@@ -471,7 +471,7 @@ impl CircuitInstruction {
                 extra_attrs: self.extra_attrs.clone(),
                 #[cfg(feature = "cache_pygates")]
                 py_op: self.py_op.clone(),
-                source_range: None,
+                source_range: self.source_range,
             })
         }
     }
