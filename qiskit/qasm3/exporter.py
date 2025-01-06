@@ -1025,6 +1025,7 @@ class QASM3Builder:
                     ast.BranchingStatement(
                         self.build_expression(_lift_condition(instruction.operation._condition)),
                         body,
+                        source_range=instruction.source_range
                     )
                 )
         return statements

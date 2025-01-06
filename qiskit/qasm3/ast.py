@@ -624,12 +624,13 @@ class BranchingStatement(Statement):
         : 'if' LPAREN booleanExpression RPAREN programBlock ( 'else' programBlock )?
     """
 
-    __slots__ = ("condition", "true_body", "false_body")
+    __slots__ = ("condition", "true_body", "false_body", "source_range")
 
-    def __init__(self, condition: Expression, true_body: ProgramBlock, false_body=None):
+    def __init__(self, condition: Expression, true_body: ProgramBlock, false_body=None, source_range: Optional[int] = None):
         self.condition = condition
         self.true_body = true_body
         self.false_body = false_body
+        self.source_range = source_range
 
 
 class ForLoopStatement(Statement):

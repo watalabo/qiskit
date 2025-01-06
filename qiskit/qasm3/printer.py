@@ -500,6 +500,7 @@ class BasicPrinter:
         if not chained:
             self._start_line()
         self.stream.write("if (")
+        self._record_source_map(node)
         self.visit(node.condition)
         self.stream.write(") ")
         self.visit(node.true_body)
